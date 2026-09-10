@@ -1711,7 +1711,7 @@ if (reversed == null) { reversed = false; }
 		var g = outline.graphics;
 		
 		var dash = g
-		    .setStrokeStyle(1.1)
+		    .setStrokeStyle(1)
 		    .beginStroke("#000000")
 		    .setStrokeDash([1000, 1000], 1000).command;
 		
@@ -1780,19 +1780,19 @@ if (reversed == null) { reversed = false; }
 	// first
 	this.btn = new lib.but();
 	this.btn.name = "btn";
-	this.btn.setTransform(241.1,306.1,1.2,1.2);
+	this.btn.setTransform(241.1,296.1,1.2,1.2);
 
 	this.tx2 = new lib.tx2();
 	this.tx2.name = "tx2";
-	this.tx2.setTransform(160.3,399.75,1.1402,1.139,0,0,0,131.6,18.5);
+	this.tx2.setTransform(160.3,369.75,1.1402,1.139,0,0,0,131.6,18.5);
 
 	this.tx1 = new lib.tx1();
 	this.tx1.name = "tx1";
-	this.tx1.setTransform(159.45,226.25,1.3038,1.3033,0,0,0,115.1,0.1);
+	this.tx1.setTransform(159.45,216.25,1.3038,1.3033,0,0,0,115.1,0.1);
 
 	this.logo = new lib.logo();
 	this.logo.name = "logo";
-	this.logo.setTransform(159.95,290.05,0.7588,0.7587,0,0,0,197.6,53.3);
+	this.logo.setTransform(159.95,280.05,0.7588,0.7587,0,0,0,197.6,53.3);
 
 	this.first = new lib.first();
 	this.first.name = "first";
@@ -1803,7 +1803,7 @@ if (reversed == null) { reversed = false; }
 	this._renderFirstFrame();
 
 }).prototype = p = new lib.AnMovieClip();
-p.nominalBounds = new cjs.Rectangle(169.4,228.2,144.29999999999998,192.7);
+p.nominalBounds = new cjs.Rectangle(169.4,228.2,144.29999999999998,162.7);
 // library properties:
 lib.properties = {
 	id: 'D146CE6CC62AB94B9DDC3CCFE6454AF1',
