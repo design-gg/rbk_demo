@@ -51,9 +51,9 @@
         */
         #canvasWrap {
             position: absolute;
-            left: 5%;
+            left: 2%;
             top: 8%;
-            width: 90%;
+            width: 96%;
             height: 90%;
             overflow: hidden;
         }
@@ -194,10 +194,7 @@ function handleComplete(evt, comp) {
         tx1Y: exportRoot.tx1.y,
         logoY: exportRoot.logo.y,
         btnY: exportRoot.btn.y,
-        tx2Y: exportRoot.tx2.y,
-
-        outline: outline,
-        outlineY: outline ? outline.y : 0
+        tx2Y: exportRoot.tx2.y
     };
 
     createjs.Ticker.framerate = lib.properties.fps;
@@ -346,8 +343,8 @@ function resizeCreative() {
 
         tx2 дополнительно опустится ещё на 80 px.
     */
-    upperShift = 100 * tall;
-    lowerExtra = 80 * tall;
+    upperShift = 80 * tall;
+    lowerExtra = 60 * tall;
 
     applyResponsivePositions();
 }
@@ -368,14 +365,6 @@ function applyResponsivePositions() {
 
     exportRoot.btn.y =
         responsive.btnY + upperShift;
-
-    /*
-        Рамка всегда следует за кнопкой.
-    */
-    if (responsive.outline) {
-        responsive.outline.y =
-            exportRoot.btn.y;
-    }
 
     /*
         tx2 отодвигается дополнительно вниз.
