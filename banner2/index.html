@@ -11,118 +11,117 @@
 <script src="index.js"></script>
 
 <style>
-html, body {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    overflow: hidden;
-}
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
 
-* {
-    box-sizing: border-box;
-}
+        * {
+            box-sizing: border-box;
+        }
 
-body {
-    background: #f7f7f5;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #000;
-}
+        body {
+            background: #f7f7f5;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #000;
+        }
 
-#Stage {
-    display: block;
-    position: relative;
-    width: min(100vw, 1060px);
-    height: min(100vh, 1400px);
-    min-width: 330px;
-    min-height: 960px;
-    overflow: hidden;
-    background: #f7f7f5;
-    box-shadow: 0 0 0 1px #000 inset;
-    text-decoration: none;
-    color: inherit;
-}
+        #Stage {
+            display: block;
+            position: relative;
+            width: min(100vw, 1060px);
+            height: min(100vh, 1400px);
+            min-width: 330px;
+            min-height: 960px;
+            overflow: hidden;
+            background: #f7f7f5;
+            box-shadow: 0 0 0 1px #000 inset;
+            text-decoration: none;
+            color: inherit;
+        }
 
-/*
-    Canvas получает область 80% x 80% баннера.
-    Внутри CreateJS масштабируется РАВНОМЕРНО — без искажения.
-    На высоких узких форматах у canvas появляется дополнительная
-    логическая высота, которую используем для лёгкого растягивания
-    композиции.
-*/
-#canvasWrap {
-    position: absolute;
-    left: 10%;
-    top: 8%;
-    width: 80%;
-    height: 80%;
-    overflow: hidden;
-}
+        /*
+            Canvas получает область 80% x 80% баннера.
+            Внутри CreateJS масштабируется РАВНОМЕРНО — без искажения.
+            На высоких узких форматах у canvas появляется дополнительная
+            логическая высота, которую используем для лёгкого растягивания
+            композиции.
+        */
+        #canvasWrap {
+            position: absolute;
+            left: 5%;
+            top: 8%;
+            width: 90%;
+            height: 90%;
+            overflow: hidden;
+        }
 
-#canvas {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-}
+        #canvas {
+            position: absolute;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+        }
 
-/* Нижняя маркировка отдельно от Animate-canvas */
-#footer {
-    position: absolute;
-    left: 0;
-    bottom: 16px;
-    width: 100%;
-    height: 48px;
-    pointer-events: none;
-}
+        /* Нижняя маркировка отдельно от Animate-canvas */
+        #footer {
+            position: absolute;
+            left: 0;
+            bottom: 16px;
+            width: 100%;
+            height: 48px;
+            pointer-events: none;
+        }
 
-#legal {
-    position: absolute;
-    left: 2%;
-    bottom: 0;
-    width: 70%;
-    font-size: 16px;
-    line-height: 1.12;
-    font-weight: 400;
-}
+        #legal {
+            position: absolute;
+            left: 2%;
+            bottom: 0;
+            width: 70%;
+            font-size: clamp(0.563rem, 0.296rem + 1.14vw, 1rem);
+            line-height: 1.12;
+            font-weight: 400;
+        }
 
-#ageMark {
-    position: absolute;
-    right: 2%;
-    bottom: 0;
-    width: 42px;
-    height: 42px;
-    border: 1.5px solid #000;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    line-height: 1;
-    font-weight: 400;
-}
+        #ageMark {
+            position: absolute;
+            right: 2%;
+            bottom: 0;
+            width: clamp(1.75rem, 1.217rem + 2.27vw, 2.625rem);
+            aspect-ratio: 1;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.75rem, 0.179rem + 2.44vw, 1.688rem);
+            line-height: 1;
+            font-weight: 400;
+        }
 
-@media (max-width: 430px) {
-    #footer {
-        bottom: 12px;
-    }
+        @media (max-width: 430px) {
+            #footer {
+                bottom: 12px;
+            }
 
-    #ageMark {
-        width: 34px;
-        height: 34px;
-        font-size: 21px;
-    }
-}
+            #ageMark {
+                      
+            }
+        }
 </style>
 
 <script>
 var canvas, stage, exportRoot;
-var responsive = null;
 
 var BASE_W = 320;
 var BASE_H = 450;
 var MAX_DPR = 2;
+
+var responsive = null;
 
 function init() {
     canvas = document.getElementById("canvas");
@@ -164,61 +163,41 @@ function handleComplete(evt, comp) {
     }
 
     exportRoot = new lib.slider();
+
     stage = new lib.Stage(canvas);
     stage.addChild(exportRoot);
 
     /*
-        Не меняем анимацию Animate.
-        Только создаём два родительских контейнера, через которые
-        на узких/высоких форматах чуть увеличиваем вертикальные интервалы.
+        Запоминаем исходные позиции элементов,
+        чтобы при resize всегда считать смещение
+        от оригинальной верстки Animate.
     */
-    createResponsiveGroups();
+    responsive = {
+        tx1Y: exportRoot.tx1.y,
+        logoY: exportRoot.logo.y,
+        btnY: exportRoot.btn.y,
+        tx2Y: exportRoot.tx2.y
+    };
 
     createjs.Ticker.framerate = lib.properties.fps;
     createjs.Ticker.addEventListener("tick", stage);
 
     resizeCreative();
+
     window.addEventListener("resize", resizeCreative);
 
     AdobeAn.compositionLoaded(lib.properties.id);
 
-    // В предыдущей версии маркировка плавно появлялась один раз.
-    gsap.from("#legal, #ageMark", {alpha: 0, duration: 0.5, ease: "power2.inOut", delay: 2.2});
-}
-
-function createResponsiveGroups() {
-    var upperGroup = new createjs.Container();
-    var lowerGroup = new createjs.Container();
-
-    upperGroup.name = "responsiveUpper";
-    lowerGroup.name = "responsiveLower";
-
-    /*
-        Контейнеры имеют ту же систему координат, что и root.
-        Поэтому исходные x/y элементов не меняются.
-    */
-    upperGroup.addChild(exportRoot.tx1);
-    upperGroup.addChild(exportRoot.logo);
-    upperGroup.addChild(exportRoot.btn);
-
-    var outline = exportRoot.getChildByName("btnOutline");
-    if (outline) {
-        upperGroup.addChild(outline);
-    }
-
-    lowerGroup.addChild(exportRoot.tx2);
-
-    exportRoot.addChild(upperGroup);
-    exportRoot.addChild(lowerGroup);
-
-    responsive = {
-        upper: upperGroup,
-        lower: lowerGroup
-    };
+    gsap.from("#legal, #ageMark", {
+        alpha: 0,
+        duration: 0.5,
+        ease: "power2.inOut",
+        delay: 2.2
+    });
 }
 
 function resizeCreative() {
-    if (!canvas || !stage || !responsive) return;
+    if (!canvas || !stage || !exportRoot || !responsive) return;
 
     var wrap = document.getElementById("canvasWrap");
     var stageEl = document.getElementById("Stage");
@@ -228,8 +207,8 @@ function resizeCreative() {
     var dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
 
     /*
-        Равномерно вписываем исходную композицию 320x450
-        в область 80% x 80%. Поэтому ничего не растягивается.
+        Равномерное масштабирование исходной композиции 320x450.
+        Никакого растягивания по одной из осей.
     */
     var scale = Math.min(cssW / BASE_W, cssH / BASE_H);
 
@@ -243,39 +222,49 @@ function resizeCreative() {
     stage.scaleY = scale * dpr;
 
     /*
-        На широких форматах исходные 320x450 просто центрируются.
-        На высоких узких форматах дополнительная высота остаётся снизу,
-        и мы используем её только для небольшого увеличения интервалов.
+        Центрируем всю композицию по горизонтали.
     */
     exportRoot.x = (logicalW - BASE_W) / 2;
     exportRoot.y = 0;
 
     /*
-        "Узкий высокий" = отношение сторон ниже ~0.58.
-        При 330x960 эффект максимальный.
-        При 768x1200 и 1060x1400 практически/полностью отсутствует.
+        Чем формат уже и выше,
+        тем больше вертикальные расстояния между блоками.
     */
     var ratio = stageEl.clientWidth / stageEl.clientHeight;
-    var minRatio = 330 / 960;
-    var startRatio = 0.58;
-    var narrow = (startRatio - ratio) / (startRatio - minRatio);
 
-    narrow = Math.max(0, Math.min(1, narrow));
+    var minRatio = 330 / 960;
+    var maxRatio = 1060 / 1400;
+
+    var tall = (maxRatio - ratio) / (maxRatio - minRatio);
+
+    tall = Math.max(0, Math.min(1, tall));
 
     /*
-        Исходные расстояния:
-        cards -> tx1 ≈ 138 px
-        logo  -> tx2 ≈ 110 px
+        Максимальные смещения на 330x960.
 
-        Увеличиваем каждое максимум на 10%.
-        upper: +13.8 px
-        lower: получает тот же сдвиг upper + ещё ~11 px.
+        upperShift:
+        cards -> tx1/logo/btn
+
+        lowerExtra:
+        дополнительное расстояние
+        logo/btn -> tx2
     */
-    var upperShift = 13.8 * narrow;
-    var lowerExtra = 11.0 * narrow;
+    var upperShift = 100 * tall;
+    var lowerExtra = 80 * tall;
 
-    responsive.upper.y = upperShift;
-    responsive.lower.y = upperShift + lowerExtra;
+    /*
+        Верхняя группа.
+    */
+    exportRoot.tx1.y = responsive.tx1Y + upperShift;
+    exportRoot.logo.y = responsive.logoY + upperShift;
+    exportRoot.btn.y = responsive.btnY + upperShift;
+
+    /*
+        tx2 сдвигаем на то же расстояние,
+        плюс добавляем дополнительный промежуток.
+    */
+    exportRoot.tx2.y = responsive.tx2Y + upperShift + lowerExtra;
 
     stage.update();
 }
@@ -291,7 +280,7 @@ function resizeCreative() {
 
     <div id="footer">
         <div id="legal">
-            Реклама. Рекламодатель: ПАО «Газпром нефть», ИНН 5504036333
+            Реклама. Рекламодатель: ПАО&nbsp;«Газпром нефть», ИНН&nbsp;5504036333
         </div>
 
         <div id="ageMark">6+</div>
