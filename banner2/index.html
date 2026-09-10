@@ -308,43 +308,17 @@ function resizeCreative() {
         Вычисляем отношение ширины к высоте
         текущего баннера.
     */
-    var ratio =
-        stageEl.clientWidth /
-        stageEl.clientHeight;
+var ratio = stageEl.clientWidth / stageEl.clientHeight;
 
-    /*
-        330x960 = самый высокий/узкий формат.
-        1060x1400 = самый широкий формат.
-    */
-    var minRatio = 330 / 960;
-    var maxRatio = 1060 / 1400;
+var minRatio = 330 / 960;
+var startRatio = 0.55;
 
-    /*
-        tall:
-        0 = широкий формат
-        1 = максимально узкий/высокий
-    */
-    var tall =
-        (maxRatio - ratio) /
-        (maxRatio - minRatio);
+var tall = (startRatio - ratio) / (startRatio - minRatio);
 
-    tall = Math.max(
-        0,
-        Math.min(1, tall)
-    );
+tall = Math.max(0, Math.min(1, tall));
 
-    /*
-        НАСТРОЙКА РАССТОЯНИЙ.
-
-        tx1 + logo + btn опускаются вместе.
-
-        На 330x960:
-        верхняя группа опустится максимум на 100 px.
-
-        tx2 дополнительно опустится ещё на 80 px.
-    */
-    upperShift = 60 * tall;
-    lowerExtra = 40 * tall;
+upperShift = 90 * tall;
+lowerExtra = 70 * tall;
 
     applyResponsivePositions();
 }
