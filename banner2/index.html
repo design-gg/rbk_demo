@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="ad.size" content="width=100%,height=100%">
+<title>RBC Adaptive Banner</title>
+
+<script src="gsap.min.js"></script>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script src="index.js"></script>
+
+<style>
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: #f7f7f5;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #000;
+}
+
+#Stage {
+    display: block;
+    position: relative;
+    width: min(100vw, 1060px);
+    height: min(100vh, 1400px);
+    min-width: 330px;
+    min-height: 960px;
+    overflow: hidden;
+    background: #f7f7f5;
+    box-shadow: 0 0 0 1px #000 inset;
+    text-decoration: none;
+    color: inherit;
+}
+
+/*
+    Canvas получает область 80% x 80% баннера.
+    Внутри CreateJS масштабируется РАВНОМЕРНО — без искажения.
+    На высоких узких форматах у canvas появляется дополнительная
+    логическая высота, которую используем для лёгкого растягивания
+    композиции.
+*/
+#canvasWrap {
+    position: absolute;
+    left: 10%;
+    top: 8%;
+    width: 80%;
+    height: 80%;
+    overflow: hidden;
+}
+
+#canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+/* Нижняя маркировка отдельно от Animate-canvas */
+#footer {
+    position: absolute;
+    left: 0;
+    bottom: 16px;
+    width: 100%;
+    height: 48px;
+    pointer-events: none;
+}
+
+#legal {
+    position: absolute;
+    left: 2%;
+    bottom: 0;
+    width: 70%;
+    font-size: 16px;
+    line-height: 1.12;
+    font-weight: 400;
+}
+
+#ageMark {
+    position: absolute;
+    right: 2%;
+    bottom: 0;
+    width: 42px;
+    height: 42px;
+    border: 1.5px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+    line-height: 1;
+    font-weight: 400;
+}
+
+@media (max-width: 430px) {
+    #footer {
+        bottom: 12px;
+    }
+
+    #ageMark {
+        width: 34px;
+        height: 34px;
+        font-size: 21px;
+    }
+}
+</style>
+
+<script>
+var canvas, stage, exportRoot;
+var responsive = null;
+
+var BASE_W = 320;
+var BASE_H = 450;
+var MAX_DPR = 2;
+
+function init() {
+    canvas = document.getElementById("canvas");
+
+    var comp = AdobeAn.getComposition("D146CE6CC62AB94B9DDC3CCFE6454AF1");
+    var lib = comp.getLibrary();
+    var loader = new createjs.LoadQueue(false);
+
+    loader.addEventListener("fileload", function(evt) {
+        handleFileLoad(evt, comp);
+    });
+
+    loader.addEventListener("complete", function(evt) {
+        handleComplete(evt, comp);
+    });
+
+    loader.loadManifest(lib.properties.manifest);
+}
+
+function handleFileLoad(evt, comp) {
+    var images = comp.getImages();
+
+    if (evt && evt.item.type === "image") {
+        images[evt.item.id] = evt.result;
+    }
+}
+
+function handleComplete(evt, comp) {
+    var lib = comp.getLibrary();
+    var ss = comp.getSpriteSheet();
+    var queue = evt.target;
+    var ssMetadata = lib.ssMetadata;
+
+    for (var i = 0; i < ssMetadata.length; i++) {
+        ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+            images: [queue.getResult(ssMetadata[i].name)],
+            frames: ssMetadata[i].frames
+        });
+    }
+
+    exportRoot = new lib.slider();
+    stage = new lib.Stage(canvas);
+    stage.addChild(exportRoot);
+
+    /*
+        Не меняем анимацию Animate.
+        Только создаём два родительских контейнера, через которые
+        на узких/высоких форматах чуть увеличиваем вертикальные интервалы.
+    */
+    createResponsiveGroups();
+
+    createjs.Ticker.framerate = lib.properties.fps;
+    createjs.Ticker.addEventListener("tick", stage);
+
+    resizeCreative();
+    window.addEventListener("resize", resizeCreative);
+
+    AdobeAn.compositionLoaded(lib.properties.id);
+
+    // В предыдущей версии маркировка плавно появлялась один раз.
+    gsap.from("#legal, #ageMark", {alpha: 0, duration: 0.5, ease: "power2.inOut", delay: 2.2});
+}
+
+function createResponsiveGroups() {
+    var upperGroup = new createjs.Container();
+    var lowerGroup = new createjs.Container();
+
+    upperGroup.name = "responsiveUpper";
+    lowerGroup.name = "responsiveLower";
+
+    /*
+        Контейнеры имеют ту же систему координат, что и root.
+        Поэтому исходные x/y элементов не меняются.
+    */
+    upperGroup.addChild(exportRoot.tx1);
+    upperGroup.addChild(exportRoot.logo);
+    upperGroup.addChild(exportRoot.btn);
+
+    var outline = exportRoot.getChildByName("btnOutline");
+    if (outline) {
+        upperGroup.addChild(outline);
+    }
+
+    lowerGroup.addChild(exportRoot.tx2);
+
+    exportRoot.addChild(upperGroup);
+    exportRoot.addChild(lowerGroup);
+
+    responsive = {
+        upper: upperGroup,
+        lower: lowerGroup
+    };
+}
+
+function resizeCreative() {
+    if (!canvas || !stage || !responsive) return;
+
+    var wrap = document.getElementById("canvasWrap");
+    var stageEl = document.getElementById("Stage");
+
+    var cssW = Math.max(1, wrap.clientWidth);
+    var cssH = Math.max(1, wrap.clientHeight);
+    var dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+    /*
+        Равномерно вписываем исходную композицию 320x450
+        в область 80% x 80%. Поэтому ничего не растягивается.
+    */
+    var scale = Math.min(cssW / BASE_W, cssH / BASE_H);
+
+    var logicalW = cssW / scale;
+    var logicalH = cssH / scale;
+
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+
+    stage.scaleX = scale * dpr;
+    stage.scaleY = scale * dpr;
+
+    /*
+        На широких форматах исходные 320x450 просто центрируются.
+        На высоких узких форматах дополнительная высота остаётся снизу,
+        и мы используем её только для небольшого увеличения интервалов.
+    */
+    exportRoot.x = (logicalW - BASE_W) / 2;
+    exportRoot.y = 0;
+
+    /*
+        "Узкий высокий" = отношение сторон ниже ~0.58.
+        При 330x960 эффект максимальный.
+        При 768x1200 и 1060x1400 практически/полностью отсутствует.
+    */
+    var ratio = stageEl.clientWidth / stageEl.clientHeight;
+    var minRatio = 330 / 960;
+    var startRatio = 0.58;
+    var narrow = (startRatio - ratio) / (startRatio - minRatio);
+
+    narrow = Math.max(0, Math.min(1, narrow));
+
+    /*
+        Исходные расстояния:
+        cards -> tx1 ≈ 138 px
+        logo  -> tx2 ≈ 110 px
+
+        Увеличиваем каждое максимум на 10%.
+        upper: +13.8 px
+        lower: получает тот же сдвиг upper + ещё ~11 px.
+    */
+    var upperShift = 13.8 * narrow;
+    var lowerExtra = 11.0 * narrow;
+
+    responsive.upper.y = upperShift;
+    responsive.lower.y = upperShift + lowerExtra;
+
+    stage.update();
+}
+</script>
+</head>
+
+<body onload="init();">
+<a href="%banner.reference_mrc_user1%" target="%banner.target%" id="Stage">
+
+    <div id="canvasWrap">
+        <canvas id="canvas" width="320" height="450"></canvas>
+    </div>
+
+    <div id="footer">
+        <div id="legal">
+            Реклама. Рекламодатель: ПАО «Газпром нефть», ИНН 5504036333
+        </div>
+
+        <div id="ageMark">6+</div>
+    </div>
+
+</a>
+</body>
+</html>
