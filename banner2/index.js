@@ -1692,10 +1692,9 @@ if (reversed == null) { reversed = false; }
 		// --------------------
 		// КОНТУР КНОПКИ
 		// --------------------
-		
-		var buttonWidth = 140;
+		var buttonWidth = 120;
 		var buttonHeight = 26;
-		var radius = 14;
+		var radius = 13;
 		var startOffset = 2;
 		
 		var halfW = buttonWidth / 2;
@@ -1704,10 +1703,10 @@ if (reversed == null) { reversed = false; }
 		var outline = new createjs.Shape();
 		outline.name = "btnOutline";
 		
-		outline.x = root.btn.x;
-		outline.y = root.btn.y;
+		outline.x = 0;
+		outline.y = 0;
 		
-		root.addChild(outline);
+		root.btn.addChild(outline);
 		
 		var g = outline.graphics;
 		
@@ -1726,6 +1725,7 @@ if (reversed == null) { reversed = false; }
 		 .lineTo(-halfW, -halfH + radius)
 		 .quadraticCurveTo(-halfW, -halfH, -halfW + radius, -halfH)
 		 .lineTo(-halfW + radius + startOffset, -halfH);
+		
 		
 		// --------------------
 		// ТАЙМЛАЙН

@@ -123,6 +123,13 @@ var MAX_DPR = 2;
 
 var responsive = null;
 
+var upperShift = 0;
+var lowerExtra = 0;
+
+var resizeRAF = null;
+var resizeObserver = null;
+
+
 function init() {
     canvas = document.getElementById("canvas");
 
@@ -141,6 +148,7 @@ function init() {
     loader.loadManifest(lib.properties.manifest);
 }
 
+
 function handleFileLoad(evt, comp) {
     var images = comp.getImages();
 
@@ -148,6 +156,7 @@ function handleFileLoad(evt, comp) {
         images[evt.item.id] = evt.result;
     }
 }
+
 
 function handleComplete(evt, comp) {
     var lib = comp.getLibrary();
@@ -162,32 +171,71 @@ function handleComplete(evt, comp) {
         });
     }
 
+    /*
+        Сначала создаём exportRoot.
+    */
     exportRoot = new lib.slider();
 
+    /*
+        Потом создаём stage.
+    */
     stage = new lib.Stage(canvas);
     stage.addChild(exportRoot);
 
     /*
-        Запоминаем исходные позиции элементов,
-        чтобы при resize всегда считать смещение
-        от оригинальной верстки Animate.
+        И только после этого ищем рамку кнопки.
+    */
+    var outline = exportRoot.getChildByName("btnOutline");
+
+    /*
+        Сохраняем исходные координаты объектов Animate.
     */
     responsive = {
         tx1Y: exportRoot.tx1.y,
         logoY: exportRoot.logo.y,
         btnY: exportRoot.btn.y,
-        tx2Y: exportRoot.tx2.y
+        tx2Y: exportRoot.tx2.y,
+
+        outline: outline,
+        outlineY: outline ? outline.y : 0
     };
 
     createjs.Ticker.framerate = lib.properties.fps;
-    createjs.Ticker.addEventListener("tick", stage);
 
+    /*
+        Animate продолжает работать как обычно.
+        На каждом кадре после расчёта адаптива
+        задаём нужные координаты.
+    */
+    createjs.Ticker.addEventListener("tick", function(evt) {
+        applyResponsivePositions();
+        stage.update(evt);
+    });
+
+    /*
+        Первый расчёт размеров.
+    */
     resizeCreative();
 
-    window.addEventListener("resize", resizeCreative);
+    /*
+        Следим именно за размером баннера,
+        а не только за размером окна браузера.
+        Это важно для demo-страницы с iframe.
+    */
+    resizeObserver = new ResizeObserver(function() {
+        scheduleResize();
+    });
+
+    resizeObserver.observe(document.getElementById("Stage"));
+    resizeObserver.observe(document.getElementById("canvasWrap"));
+
+    window.addEventListener("resize", scheduleResize);
 
     AdobeAn.compositionLoaded(lib.properties.id);
 
+    /*
+        Нижняя маркировка.
+    */
     gsap.from("#legal, #ageMark", {
         alpha: 0,
         duration: 0.5,
@@ -195,6 +243,19 @@ function handleComplete(evt, comp) {
         delay: 2.2
     });
 }
+
+
+function scheduleResize() {
+    if (resizeRAF) {
+        cancelAnimationFrame(resizeRAF);
+    }
+
+    resizeRAF = requestAnimationFrame(function() {
+        resizeRAF = null;
+        resizeCreative();
+    });
+}
+
 
 function resizeCreative() {
     if (!canvas || !stage || !exportRoot || !responsive) return;
@@ -204,69 +265,125 @@ function resizeCreative() {
 
     var cssW = Math.max(1, wrap.clientWidth);
     var cssH = Math.max(1, wrap.clientHeight);
-    var dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+    var dpr = Math.min(
+        window.devicePixelRatio || 1,
+        MAX_DPR
+    );
 
     /*
-        Равномерное масштабирование исходной композиции 320x450.
-        Никакого растягивания по одной из осей.
+        Равномерно масштабируем исходный Animate 320x450.
+        Пропорции не искажаются.
     */
-    var scale = Math.min(cssW / BASE_W, cssH / BASE_H);
+    var scale = Math.min(
+        cssW / BASE_W,
+        cssH / BASE_H
+    );
 
     var logicalW = cssW / scale;
     var logicalH = cssH / scale;
 
-    canvas.width = Math.max(1, Math.round(cssW * dpr));
-    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    /*
+        Повышаем физическое разрешение canvas,
+        чтобы изображения не становились мыльными.
+    */
+    canvas.width = Math.max(
+        1,
+        Math.round(cssW * dpr)
+    );
+
+    canvas.height = Math.max(
+        1,
+        Math.round(cssH * dpr)
+    );
 
     stage.scaleX = scale * dpr;
     stage.scaleY = scale * dpr;
 
     /*
-        Центрируем всю композицию по горизонтали.
+        Центрируем исходную композицию
+        по горизонтали внутри canvasWrap.
     */
     exportRoot.x = (logicalW - BASE_W) / 2;
     exportRoot.y = 0;
 
     /*
-        Чем формат уже и выше,
-        тем больше вертикальные расстояния между блоками.
+        Вычисляем отношение ширины к высоте
+        текущего баннера.
     */
-    var ratio = stageEl.clientWidth / stageEl.clientHeight;
+    var ratio =
+        stageEl.clientWidth /
+        stageEl.clientHeight;
 
+    /*
+        330x960 = самый высокий/узкий формат.
+        1060x1400 = самый широкий формат.
+    */
     var minRatio = 330 / 960;
     var maxRatio = 1060 / 1400;
 
-    var tall = (maxRatio - ratio) / (maxRatio - minRatio);
+    /*
+        tall:
+        0 = широкий формат
+        1 = максимально узкий/высокий
+    */
+    var tall =
+        (maxRatio - ratio) /
+        (maxRatio - minRatio);
 
-    tall = Math.max(0, Math.min(1, tall));
+    tall = Math.max(
+        0,
+        Math.min(1, tall)
+    );
 
     /*
-        Максимальные смещения на 330x960.
+        НАСТРОЙКА РАССТОЯНИЙ.
 
-        upperShift:
-        cards -> tx1/logo/btn
+        tx1 + logo + btn опускаются вместе.
 
-        lowerExtra:
-        дополнительное расстояние
-        logo/btn -> tx2
+        На 330x960:
+        верхняя группа опустится максимум на 100 px.
+
+        tx2 дополнительно опустится ещё на 80 px.
     */
-    var upperShift = 100 * tall;
-    var lowerExtra = 80 * tall;
+    upperShift = 100 * tall;
+    lowerExtra = 80 * tall;
+
+    applyResponsivePositions();
+}
+
+
+function applyResponsivePositions() {
+    if (!exportRoot || !responsive) return;
 
     /*
-        Верхняя группа.
+        tx1 + logo + btn остаются одним блоком.
+        Расстояние между ними НЕ меняется.
     */
-    exportRoot.tx1.y = responsive.tx1Y + upperShift;
-    exportRoot.logo.y = responsive.logoY + upperShift;
-    exportRoot.btn.y = responsive.btnY + upperShift;
+    exportRoot.tx1.y =
+        responsive.tx1Y + upperShift;
+
+    exportRoot.logo.y =
+        responsive.logoY + upperShift;
+
+    exportRoot.btn.y =
+        responsive.btnY + upperShift;
 
     /*
-        tx2 сдвигаем на то же расстояние,
-        плюс добавляем дополнительный промежуток.
+        Рамка всегда следует за кнопкой.
     */
-    exportRoot.tx2.y = responsive.tx2Y + upperShift + lowerExtra;
+    if (responsive.outline) {
+        responsive.outline.y =
+            exportRoot.btn.y;
+    }
 
-    stage.update();
+    /*
+        tx2 отодвигается дополнительно вниз.
+    */
+    exportRoot.tx2.y =
+        responsive.tx2Y +
+        upperShift +
+        lowerExtra;
 }
 </script>
 </head>
