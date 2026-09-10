@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="ad.size" content="width=100%,height=100%">
+<title>RBC adaptive banner</title>
+
+<script src="gsap.min.js"></script>
+<script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+<script src="index.js"></script>
+
+<style>
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    background: #f7f7f5;
+
+}
+
+#Stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: min(100vw, 1060px);
+    height: min(100vh, 1400px);
+    overflow: hidden;
+    background: #f7f7f5;
+    box-shadow: 0 0 0 1px #000 inset;
+}
+
+#canvas {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: block;
+    transform: translate(-50%, -50%);
+    transform-origin: 50% 50%;
+    background: transparent;
+
+}
+
+#ageMark {
+    position: absolute;
+    right: 22px;
+    bottom: 18px;
+    width: 42px;
+    height: 42px;
+    box-sizing: border-box;
+    border: 2px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 27px;
+    line-height: 1;
+    font-weight: 400;
+    color: #000;
+    pointer-events: none;
+    z-index: 5;
+}
+
+@media (max-width: 500px), (max-height: 900px) {
+    #ageMark {
+        right: 10px;
+        bottom: 10px;
+        width: 30px;
+        height: 30px;
+        border-width: 1.5px;
+        font-size: 19px;
+    }
+}
+
+</style>
+
+<script>
+var canvas, stage, exportRoot;
+
+var BASE_W = 300;
+var BASE_H = 600;
+
+// Ограничиваем DPR, чтобы не делать canvas неоправданно тяжелым для рендера.
+var MAX_DPR = 2;
+
+function init() {
+    canvas = document.getElementById("canvas");
+
+    var comp = AdobeAn.getComposition("D146CE6CC62AB94B9DDC3CCFE6454AF1");
+    var lib = comp.getLibrary();
+    var loader = new createjs.LoadQueue(false);
+
+    loader.addEventListener("fileload", function(evt) {
+        handleFileLoad(evt, comp);
+    });
+
+    loader.addEventListener("complete", function(evt) {
+        handleComplete(evt, comp);
+    });
+
+    loader.loadManifest(lib.properties.manifest);
+}
+
+function handleFileLoad(evt, comp) {
+    var images = comp.getImages();
+
+    if (evt && evt.item.type == "image") {
+        images[evt.item.id] = evt.result;
+    }
+}
+
+function handleComplete(evt, comp) {
+    var lib = comp.getLibrary();
+    var ss = comp.getSpriteSheet();
+    var queue = evt.target;
+    var ssMetadata = lib.ssMetadata;
+
+    for (var i = 0; i < ssMetadata.length; i++) {
+        ss[ssMetadata[i].name] = new createjs.SpriteSheet({
+            images: [queue.getResult(ssMetadata[i].name)],
+            frames: ssMetadata[i].frames
+        });
+    }
+
+    exportRoot = new lib._300x600();
+
+    // Убираем белую подложку Animate.
+    // Фоном становится адаптивное поле всего HTML-контейнера.
+    if (exportRoot.instance) {
+        exportRoot.instance.visible = false;
+    }
+
+    stage = new lib.Stage(canvas);
+    stage.addChild(exportRoot);
+
+    createjs.Ticker.framerate = lib.properties.fps;
+    createjs.Ticker.addEventListener("tick", stage);
+
+    resizeCreative();
+    window.addEventListener("resize", resizeCreative);
+
+    AdobeAn.compositionLoaded(lib.properties.id);
+}
+
+function resizeCreative() {
+    if (!canvas || !stage) return;
+
+    var stageEl = document.getElementById("Stage");
+    var slotW = stageEl.clientWidth;
+    var slotH = stageEl.clientHeight;
+
+    // Весь исходный 300x600 помещаем внутрь слота без обрезки.
+    // Остаток пространства становится "полями" того же фонового цвета.
+    var scale = Math.min(slotW / BASE_W, slotH / BASE_H);
+
+    var cssW = Math.round(BASE_W * scale);
+    var cssH = Math.round(BASE_H * scale);
+
+    var dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
+    canvas.style.width = cssW + "px";
+    canvas.style.height = cssH + "px";
+
+    canvas.width = Math.max(1, Math.round(cssW * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+
+    stage.scaleX = canvas.width / BASE_W;
+    stage.scaleY = canvas.height / BASE_H;
+
+    stage.update();
+}
+</script>
+</head>
+
+<body onload="init();"  style="margin:0px;">
+    
+    <a href="%banner.reference_mrc_user1%" target="%banner.target%" id="Stage">
+        <canvas id="canvas" width="300" height="600"></canvas>
+        <div id="ageMark">6+</div>
+    </a>
+</body>
+</html>
