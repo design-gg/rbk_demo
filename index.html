@@ -92,7 +92,7 @@ button.active {
     color: #fff;
 }
 
-.ranges {
+/*.ranges {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
@@ -115,7 +115,7 @@ button.active {
 
 input[type="range"] {
     width: 100%;
-}
+}*/
 
 .preview-panel {
     position: relative;
@@ -220,13 +220,14 @@ iframe {
     <button class="version-btn active" data-banner="banner1/index.html">Вариант 1</button>
     <button class="version-btn" data-banner="banner2/index.html">Вариант 2</button>
 </div>-->
-    <div class="controls">
-        <div class="presets">
-            <button data-w="330" data-h="960">330×960</button>
-            <button data-w="500" data-h="1000">500×1000</button>
-            <button data-w="768" data-h="1200">768×1200</button>
-            <button data-w="1060" data-h="1400">1060×1400</button>
-        </div>
+<div class="controls">
+    <div class="presets">
+        <button data-w="1060" data-h="1400">1060×1400</button>
+        <button data-w="768" data-h="1024">768×1024</button>
+        <button data-w="425" data-h="900">425×900</button>
+        <button data-w="330" data-h="960">330×960</button>
+    </div>
+</div>
 
         <div class="ranges">
             <div class="range-row">
@@ -258,87 +259,69 @@ iframe {
 </div>
 
 <script>
-const MIN_W = 330;
-const MAX_W = 1060;
-const MIN_H = 960;
-const MAX_H = 1400;
-
-const widthRange = document.getElementById('widthRange');
-const heightRange = document.getElementById('heightRange');
-const widthValue = document.getElementById('widthValue');
-const heightValue = document.getElementById('heightValue');
 const currentSize = document.getElementById('currentSize');
-const previewPanel = document.getElementById('previewPanel');
 const previewArea = document.getElementById('previewArea');
 const scaledBox = document.getElementById('scaledBox');
 const frame = document.getElementById('frame');
 const buttons = [...document.querySelectorAll('[data-w][data-h]')];
 
-function setSize(w, h) {
-    w = Math.max(MIN_W, Math.min(MAX_W, Math.round(w)));
-    h = Math.max(MIN_H, Math.min(MAX_H, Math.round(h)));
+let currentW = 1060;
+let currentH = 1400;
 
-    widthRange.value = w;
-    heightRange.value = h;
-    widthValue.textContent = w + ' px';
-    heightValue.textContent = h + ' px';
+function setSize(w, h) {
+    currentW = w;
+    currentH = h;
+
     currentSize.textContent = w + ' × ' + h;
 
     frame.style.width = w + 'px';
     frame.style.height = h + 'px';
 
-    requestAnimationFrame(fitPreview);
-
     buttons.forEach(btn => {
         btn.classList.toggle(
             'active',
-            Number(btn.dataset.w) === w && Number(btn.dataset.h) === h
+            Number(btn.dataset.w) === w &&
+            Number(btn.dataset.h) === h
         );
     });
+
+    requestAnimationFrame(fitPreview);
 }
 
 function fitPreview() {
-    const w = Number(widthRange.value);
-    const h = Number(heightRange.value);
-
     const availableW = Math.max(280, previewArea.clientWidth);
     const availableH = Math.max(560, window.innerHeight - 260);
 
-    const scale = Math.min(1, availableW / w, availableH / h);
+    const scale = Math.min(
+        1,
+        availableW / currentW,
+        availableH / currentH
+    );
 
     frame.style.transform = 'scale(' + scale + ')';
-    scaledBox.style.width = Math.round(w * scale) + 'px';
-    scaledBox.style.height = Math.round(h * scale) + 'px';
-    previewArea.style.minHeight = Math.max(560, Math.round(h * scale)) + 'px';
+
+    scaledBox.style.width =
+        Math.round(currentW * scale) + 'px';
+
+    scaledBox.style.height =
+        Math.round(currentH * scale) + 'px';
+
+    previewArea.style.minHeight =
+        Math.max(560, Math.round(currentH * scale)) + 'px';
 }
-
-widthRange.addEventListener('input', () => {
-    setSize(Number(widthRange.value), Number(heightRange.value));
-});
-
-heightRange.addEventListener('input', () => {
-    setSize(Number(widthRange.value), Number(heightRange.value));
-});
 
 buttons.forEach(btn => {
     btn.addEventListener('click', () => {
-        setSize(Number(btn.dataset.w), Number(btn.dataset.h));
+        setSize(
+            Number(btn.dataset.w),
+            Number(btn.dataset.h)
+        );
     });
 });
 
 window.addEventListener('resize', fitPreview);
 
-setSize(330, 960);
-    const versionButtons = document.querySelectorAll(".version-btn");
-const bannerFrame = document.getElementById("bannerFrame");
-
-versionButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-        versionButtons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        bannerFrame.src = btn.dataset.banner;
-    });
-});
+setSize(1060, 1400);
 </script>
 </body>
 </html>
