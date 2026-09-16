@@ -158,6 +158,8 @@ button.active {
     transform-origin: 0 0;
 
     background: #fff;
+
+    box-shadow: 0 10px 35px rgba(0,0,0,.14);
 }
 
 iframe {
@@ -176,9 +178,7 @@ iframe {
 
 .note {
     margin-top: 12px;
-
     color: var(--muted);
-
     font-size: 12px;
     line-height: 1.45;
 }
@@ -253,8 +253,8 @@ iframe {
 
             <button
                 data-w="425"
-                data-h="900">
-                425×900
+                data-h="960">
+                425×960
             </button>
 
             <button
@@ -289,7 +289,8 @@ iframe {
                     <iframe
                         id="bannerFrame"
                         src="adap_1060x1400_new/index.html"
-                        title="RBC adaptive banner">
+                        title="RBC adaptive banner"
+                        scrolling="no">
                     </iframe>
 
                 </div>
@@ -313,30 +314,16 @@ iframe {
 
 <script>
 
-const currentSize =
-    document.getElementById("currentSize");
-
-const previewPanel =
-    document.getElementById("previewPanel");
-
-const previewArea =
-    document.getElementById("previewArea");
-
-const scaledBox =
-    document.getElementById("scaledBox");
-
-const frame =
-    document.getElementById("frame");
-
-const bannerFrame =
-    document.getElementById("bannerFrame");
+const currentSize = document.getElementById("currentSize");
+const previewPanel = document.getElementById("previewPanel");
+const previewArea = document.getElementById("previewArea");
+const scaledBox = document.getElementById("scaledBox");
+const frame = document.getElementById("frame");
+const bannerFrame = document.getElementById("bannerFrame");
 
 const buttons = [
-    ...document.querySelectorAll(
-        "[data-w][data-h]"
-    )
+    ...document.querySelectorAll("[data-w][data-h]")
 ];
-
 
 let currentW = 1060;
 let currentH = 1400;
@@ -351,16 +338,12 @@ function setSize(w, h) {
     currentW = w;
     currentH = h;
 
-
     currentSize.textContent =
         w + " × " + h;
 
-
     /*
-        ВАЖНО:
-        iframe получает реальный размер слота.
-        Масштабируется только его отображение
-        на demo-странице.
+        iframe получает настоящий
+        размер рекламного слота
     */
 
     frame.style.width =
@@ -387,17 +370,17 @@ function setSize(w, h) {
 
 
     /*
-        Ждём применения нового размера
+        После изменения размера
+        пересчитываем отображение
     */
 
     requestAnimationFrame(function() {
 
         fitPreview();
 
-
         /*
-            Сообщаем баннеру внутри iframe,
-            что размер слота изменился.
+            Сообщаем баннеру,
+            что размер iframe изменился
         */
 
         try {
@@ -419,11 +402,6 @@ function setSize(w, h) {
 
 function fitPreview() {
 
-    /*
-        Реально доступная ширина
-        внутри preview-panel.
-    */
-
     const panelStyle =
         getComputedStyle(previewPanel);
 
@@ -431,6 +409,11 @@ function fitPreview() {
         parseFloat(panelStyle.paddingLeft) +
         parseFloat(panelStyle.paddingRight);
 
+
+    /*
+        Доступная ширина
+        внутри preview-panel
+    */
 
     const availableW =
         Math.max(
@@ -440,8 +423,8 @@ function fitPreview() {
 
 
     /*
-        Максимальная высота превью
-        относительно окна браузера.
+        Доступная высота
+        для комфортного просмотра
     */
 
     const availableH =
@@ -452,14 +435,10 @@ function fitPreview() {
 
 
     /*
-        Масштабируем только визуально.
+        Сам iframe остаётся настоящего размера.
 
-        Сам iframe всё равно остаётся:
-        1060×1400
-        768×1024
-        425×900
-        или
-        330×960.
+        Здесь уменьшается только
+        его визуальное отображение.
     */
 
     const scale =
@@ -475,8 +454,8 @@ function fitPreview() {
 
 
     /*
-        scaledBox занимает уже
-        визуальный размер баннера.
+        Размер контейнера после
+        визуального масштабирования
     */
 
     scaledBox.style.width =
@@ -489,11 +468,6 @@ function fitPreview() {
             currentH * scale
         ) + "px";
 
-
-    /*
-        Высота области превью.
-        Никаких внутренних scrollbar.
-    */
 
     previewArea.style.minHeight =
         Math.max(
