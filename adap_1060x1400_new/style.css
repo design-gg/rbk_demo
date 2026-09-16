@@ -1,0 +1,483 @@
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+}
+
+body{
+    background:#ccc;
+    overflow:auto;
+}
+
+
+/* =========================================================
+   BANNER
+
+   MAX: 1040 × 1600
+   MIN: 330 × 960
+
+   ЛОГИКА МАСШТАБА:
+
+   1040 → 890px:
+   графика остается 100%
+
+   ниже 890px:
+   графика начинает пропорционально уменьшаться
+
+   425px и ниже:
+   дополнительно меняется композиция
+========================================================= */
+
+#banner{
+    position:relative;
+
+    width:clamp(330px, 100vw, 1040px);
+    height:clamp(960px, 100vh, 1600px);
+
+    max-width:1040px;
+    max-height:1600px;
+
+    overflow:hidden;
+
+    background:#fff;
+
+    /* рамка входит внутрь размера */
+    border:1px solid #000;
+
+    /*
+       По умолчанию графика 100%.
+       Ниже 890px переменная будет переопределена.
+    */
+    --scale:1;
+
+    /*
+       Поля НЕ зависят от --scale.
+       Они плавно меняются отдельно.
+    */
+    --side:clamp(12px, 3.65vw, 38px);
+
+    display:flex;
+    flex-direction:column;
+
+    padding:
+        var(--side)
+        var(--side)
+        clamp(8px, 1.7vw, 18px);
+}
+
+
+/* =========================================================
+   1. PHOTO
+
+   Фото не использует --scale.
+   Оно адаптируется самостоятельно.
+========================================================= */
+
+.photo{
+    position:relative;
+
+    flex:none;
+
+    width:100%;
+    height:56%;
+
+    overflow:hidden;
+
+    border-radius:clamp(18px, 4.8vw, 50px);
+
+    transform-origin:center center;
+}
+
+.photo img{
+    display:block;
+
+    width:100%;
+    height:100%;
+    right:0;
+
+    object-fit:cover;
+    object-position:center center;
+}
+
+
+/* =========================================================
+   2. MAIN CONTENT
+
+   Занимает все пространство между PHOTO и FOOTER.
+========================================================= */
+
+.main-content{
+    position:relative;
+
+    flex:1;
+
+    min-height:0;
+
+    width:100%;
+}
+
+
+/* =========================================================
+   ГАЗПРОМ НЕФТЬ + ПРЕДСТАВЛЯЕТ
+========================================================= */
+
+.present-block{
+    position:absolute;
+
+    left:0;
+    top:55px ;
+
+    display:flex;
+    flex-direction:column;
+
+    align-items:flex-start;
+}
+
+
+/* =========================================================
+   ГАЗПРОМ НЕФТЬ
+========================================================= */
+
+.gazprom{
+    display:block;
+    width:auto;
+    height:auto;
+}
+
+/* =========================================================
+   ПРЕДСТАВЛЯЕТ
+========================================================= */
+
+.presents{
+    display:block;
+    width:auto;
+    height:auto;
+    margin-top:8px;
+}
+
+/* =========================================================
+   BRAND
+
+   ЭНЕРГИЯ НЕДР + ВЫСТАВКА-ОТКРЫТИЕ
+========================================================= */
+
+.brand{
+    right:0;
+    top:48px;
+    position: absolute;
+}
+
+
+/* =========================================================
+   ЭНЕРГИЯ НЕДР
+========================================================= */
+
+.logo{
+    position:relative;
+    display:block;
+    width:auto;
+    height:auto;
+}
+
+
+/* =========================================================
+   ВЫСТАВКА-ОТКРЫТИЕ
+========================================================= */
+
+.exhibition{
+    position:absolute;
+
+    right:0;
+    bottom:0;
+
+    width:260px;
+    height:58px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.exhibition-text{
+    position:relative;
+    display:block;
+
+    width:auto;
+    height:auto;
+
+    z-index:2;
+}
+
+.exhibition-outline{
+    position:absolute;
+
+    left:0;
+    top:0;
+
+    width:100%;
+    height:100%;
+
+    overflow:visible;
+
+    z-index:1;
+}
+
+.outline-path{
+    fill:none;
+    stroke:#000;
+    stroke-width:1;
+    vector-effect:non-scaling-stroke;
+}
+
+
+/* =========================================================
+   LOCATION
+   Ханты-Мансийск
+========================================================= */
+
+.location{
+    position:absolute;
+    left:0;
+    top:55%;
+
+    display:block;
+    width:auto;
+    height:auto;
+
+    transform:translateY(-50%);
+}
+
+/* =========================================================
+   SUPPORT
+========================================================= */
+
+.support{
+    position:absolute;
+    right:0;
+    top:55%;
+
+    display:block;
+    width:auto;
+    height:auto;
+
+    transform:translateY(-50%);
+}
+
+
+/* =========================================================
+   3. FOOTER
+
+   Всегда находится внизу баннера.
+========================================================= */
+
+.footer{
+    position:relative;
+
+    flex:none;
+
+    width:100%;
+    height:calc(55px * var(--scale));
+
+    display:flex;
+
+    align-items:flex-end;
+    justify-content:space-between;
+}
+
+
+/* =========================================================
+   LEGAL
+========================================================= */
+
+.legal{
+    display:block;
+    width:auto;
+    height:auto;
+}
+
+.age{
+    display:block;
+    width:auto;
+    height:auto;
+}
+
+/* =========================================================
+
+   950--425px
+
+   пропорциональное Масштабирование 
+========================================================= */
+
+.content-scale{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+}
+
+
+@media (max-width:949px){
+
+    .content-scale{
+        transform:scale(calc(100vw / 950));
+        width:calc(100% * 950 / 100vw);
+        height:calc(100% * 950 / 100vw);
+    }
+
+}
+
+
+
+
+
+/* =========================================================
+   MOBILE
+   425px И МЕНЬШЕ
+========================================================= */
+
+@media (max-width:425px){
+
+    #banner{
+        padding-left:12px;
+        padding-right:12px;
+        padding-top:12px;
+        padding-bottom:8px;
+    }
+
+    /* =====================================================
+       PHOTO
+       Фото занимает верхнюю часть.
+       Показываем изображение полностью по высоте.
+    ===================================================== */
+
+    .photo{
+        height:48%;
+        border-radius:18px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:#fff;
+    }
+
+        .photo img{
+        width:auto;
+        height:100%;
+        max-width:none;
+
+        object-fit:initial;
+
+        position:absolute;
+        left:30%;
+        top:0;
+        transform:translateX(-50%);
+}
+    /* =====================================================
+       MAIN
+       Контент занимает около 40% высоты баннера
+    ===================================================== */
+
+    .main-content{
+        position:relative;
+        flex:1;
+        width:100%;
+        min-height:0;
+    }
+
+    .content-scale{
+        position:absolute;
+        inset:0;
+        width:100%;
+        height:100%;
+    }
+
+
+    /* =====================================================
+       ГАЗПРОМ
+       Полностью влево
+    ===================================================== */
+
+    .present-block{
+        left:0;
+        top:3%;
+        transform:none;
+        align-items:flex-start;
+    }
+
+    .presents{
+        margin-top:6px;
+    }
+
+    /* =====================================================
+       ЛОГО
+    ===================================================== */
+
+    .brand{
+        left:0;
+        right:auto;
+        top:28%;
+        width:100%;
+        transform:none;
+    }
+
+    /* =====================================================
+       LOCATION
+    ===================================================== */
+
+    .location{
+        left:0;
+        top:58%;
+        transform:none;
+    }
+
+
+    /* =====================================================
+       SUPPORT
+    ===================================================== */
+
+.support{
+    left:auto;
+    right:0;
+    top:76%;
+    transform:none;
+}
+
+    /* =====================================================
+       FOOTER
+    ===================================================== */
+
+    .footer .legal{
+        max-width:calc(100% - 35px);
+        height:auto;
+    }
+
+    .footer{
+    position:relative;
+    flex:none;
+    width:100%;
+    height:auto;
+    min-height:28px;
+
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+
+    overflow:visible;
+}
+    
+    .footer .age{
+    flex:none;
+    margin-left:8px;
+}
+
+}
