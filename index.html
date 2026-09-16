@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>RBC Adaptive Banner — Demo</title>
 
 <style>
@@ -37,6 +38,9 @@ body {
     margin: 0 auto;
 }
 
+
+/* HEADER */
+
 .header {
     display: flex;
     justify-content: space-between;
@@ -63,6 +67,9 @@ body {
     font-weight: 700;
 }
 
+
+/* CONTROLS */
+
 .controls {
     background: var(--panel);
     border: 1px solid var(--line);
@@ -86,7 +93,10 @@ button {
     padding: 9px 14px;
     font: inherit;
     cursor: pointer;
-    transition: background .2s, color .2s, border-color .2s;
+    transition:
+        background .2s,
+        color .2s,
+        border-color .2s;
 }
 
 button:hover,
@@ -95,6 +105,9 @@ button.active {
     background: #111318;
     color: #fff;
 }
+
+
+/* PREVIEW */
 
 .preview-panel {
     position: relative;
@@ -108,6 +121,7 @@ button.active {
         #fff;
 
     background-size: 28px 28px;
+
     background-position:
         0 0,
         0 14px,
@@ -116,13 +130,16 @@ button.active {
 
     border: 1px solid var(--line);
     border-radius: 14px;
-    overflow: auto;
+
+    overflow: hidden;
+
     padding: 28px;
 }
 
 .preview-area {
     width: 100%;
-    min-height: 650px;
+    min-height: 560px;
+
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -137,27 +154,40 @@ button.active {
     position: absolute;
     left: 0;
     top: 0;
+
     transform-origin: 0 0;
+
     background: #fff;
-    box-shadow: 0 10px 35px rgba(0,0,0,.14);
 }
 
 iframe {
     display: block;
+
     width: 100%;
     height: 100%;
+
     border: 0;
+
     background: #fff;
 }
 
+
+/* NOTE */
+
 .note {
     margin-top: 12px;
+
     color: var(--muted);
+
     font-size: 12px;
     line-height: 1.45;
 }
 
+
+/* MOBILE */
+
 @media (max-width: 780px) {
+
     body {
         padding: 12px;
     }
@@ -173,23 +203,37 @@ iframe {
     }
 }
 </style>
+
 </head>
+
 
 <body>
 
 <div class="demo">
 
+
+    <!-- HEADER -->
+
     <div class="header">
+
         <div>
             <h1>RBC — Adaptive Skyscraper</h1>
-            <p>Один HTML5-креатив в разных размерах рекламного слота</p>
+
+            <p>
+                Один HTML5-креатив в разных размерах рекламного слота
+            </p>
         </div>
 
-        <div class="current-size" id="currentSize">
+        <div
+            class="current-size"
+            id="currentSize">
             1060 × 1400
         </div>
+
     </div>
 
+
+    <!-- FORMATS -->
 
     <div class="controls">
 
@@ -224,13 +268,23 @@ iframe {
     </div>
 
 
-    <div class="preview-panel">
+    <!-- PREVIEW -->
 
-        <div class="preview-area" id="previewArea">
+    <div
+        class="preview-panel"
+        id="previewPanel">
 
-            <div class="scaled-box" id="scaledBox">
+        <div
+            class="preview-area"
+            id="previewArea">
 
-                <div class="frame" id="frame">
+            <div
+                class="scaled-box"
+                id="scaledBox">
+
+                <div
+                    class="frame"
+                    id="frame">
 
                     <iframe
                         id="bannerFrame"
@@ -247,34 +301,67 @@ iframe {
     </div>
 
 
+    <!-- NOTE -->
+
     <div class="note">
         Кнопки показывают контрольные размеры рекламного слота.
     </div>
+
 
 </div>
 
 
 <script>
-const currentSize = document.getElementById("currentSize");
-const previewArea = document.getElementById("previewArea");
-const scaledBox = document.getElementById("scaledBox");
-const frame = document.getElementById("frame");
-const bannerFrame = document.getElementById("bannerFrame");
+
+const currentSize =
+    document.getElementById("currentSize");
+
+const previewPanel =
+    document.getElementById("previewPanel");
+
+const previewArea =
+    document.getElementById("previewArea");
+
+const scaledBox =
+    document.getElementById("scaledBox");
+
+const frame =
+    document.getElementById("frame");
+
+const bannerFrame =
+    document.getElementById("bannerFrame");
 
 const buttons = [
-    ...document.querySelectorAll("[data-w][data-h]")
+    ...document.querySelectorAll(
+        "[data-w][data-h]"
+    )
 ];
+
 
 let currentW = 1060;
 let currentH = 1400;
 
 
+/* =========================
+   SET FORMAT
+========================= */
+
 function setSize(w, h) {
+
     currentW = w;
     currentH = h;
 
+
     currentSize.textContent =
         w + " × " + h;
+
+
+    /*
+        ВАЖНО:
+        iframe получает реальный размер слота.
+        Масштабируется только его отображение
+        на demo-странице.
+    */
 
     frame.style.width =
         w + "px";
@@ -282,91 +369,184 @@ function setSize(w, h) {
     frame.style.height =
         h + "px";
 
+
+    /*
+        Активная кнопка
+    */
+
     buttons.forEach(btn => {
+
         btn.classList.toggle(
             "active",
+
             Number(btn.dataset.w) === w &&
             Number(btn.dataset.h) === h
         );
+
     });
 
+
     /*
-        Сначала даём iframe реально получить новый размер,
-        потом рассчитываем визуальный масштаб demo.
+        Ждём применения нового размера
     */
+
     requestAnimationFrame(function() {
+
         fitPreview();
 
+
         /*
-            Дополнительно отправляем resize внутрь iframe.
-            Это особенно полезно для CreateJS/Animate-баннера.
+            Сообщаем баннеру внутри iframe,
+            что размер слота изменился.
         */
+
         try {
+
             bannerFrame.contentWindow.dispatchEvent(
                 new Event("resize")
             );
+
         } catch (e) {}
+
     });
+
 }
 
 
+/* =========================
+   FIT PREVIEW
+========================= */
+
 function fitPreview() {
+
+    /*
+        Реально доступная ширина
+        внутри preview-panel.
+    */
+
+    const panelStyle =
+        getComputedStyle(previewPanel);
+
+    const paddingX =
+        parseFloat(panelStyle.paddingLeft) +
+        parseFloat(panelStyle.paddingRight);
+
+
     const availableW =
-        Math.max(280, previewArea.clientWidth);
+        Math.max(
+            1,
+            previewPanel.clientWidth - paddingX
+        );
+
+
+    /*
+        Максимальная высота превью
+        относительно окна браузера.
+    */
 
     const availableH =
         Math.max(
-            560,
-            window.innerHeight - 260
+            500,
+            window.innerHeight - 320
         );
 
-    const scale = Math.min(
-        1,
-        availableW / currentW,
-        availableH / currentH
-    );
+
+    /*
+        Масштабируем только визуально.
+
+        Сам iframe всё равно остаётся:
+        1060×1400
+        768×1024
+        425×900
+        или
+        330×960.
+    */
+
+    const scale =
+        Math.min(
+            1,
+            availableW / currentW,
+            availableH / currentH
+        );
+
 
     frame.style.transform =
         "scale(" + scale + ")";
 
+
+    /*
+        scaledBox занимает уже
+        визуальный размер баннера.
+    */
+
     scaledBox.style.width =
-        Math.round(currentW * scale) + "px";
+        Math.ceil(
+            currentW * scale
+        ) + "px";
 
     scaledBox.style.height =
-        Math.round(currentH * scale) + "px";
+        Math.ceil(
+            currentH * scale
+        ) + "px";
+
+
+    /*
+        Высота области превью.
+        Никаких внутренних scrollbar.
+    */
 
     previewArea.style.minHeight =
         Math.max(
             560,
-            Math.round(currentH * scale)
+            Math.ceil(currentH * scale)
         ) + "px";
+
 }
 
 
+/* =========================
+   FORMAT BUTTONS
+========================= */
+
 buttons.forEach(btn => {
 
-    btn.addEventListener("click", function() {
+    btn.addEventListener(
+        "click",
+        function() {
 
-        setSize(
-            Number(btn.dataset.w),
-            Number(btn.dataset.h)
-        );
+            setSize(
+                Number(btn.dataset.w),
+                Number(btn.dataset.h)
+            );
 
-    });
+        }
+    );
 
 });
 
 
+/* =========================
+   WINDOW RESIZE
+========================= */
+
 window.addEventListener(
     "resize",
-    fitPreview
+    function() {
+
+        requestAnimationFrame(
+            fitPreview
+        );
+
+    }
 );
 
 
-/*
-    Стартовый формат.
-*/
+/* =========================
+   START
+========================= */
+
 setSize(1060, 1400);
+
 </script>
 
 </body>
