@@ -41,11 +41,11 @@ body{
 #banner{
     position:relative;
 
-    width:clamp(330px, 100vw, 1040px);
-    height:clamp(960px, 100vh, 1600px);
+    width:clamp(330px, 100vw, 1060px);
+    height:clamp(960px, 100vh, 1400px);
 
-    max-width:1040px;
-    max-height:1600px;
+    max-width:1060px;
+    max-height:1400px;
 
     overflow:hidden;
 
@@ -135,7 +135,7 @@ body{
     position:absolute;
 
     left:0;
-    top:55px ;
+    top:65px ;
 
     display:flex;
     flex-direction:column;
@@ -162,7 +162,7 @@ body{
     display:block;
     width:auto;
     height:auto;
-    margin-top:8px;
+    margin-top:11px;
 }
 
 /* =========================================================
@@ -173,7 +173,7 @@ body{
 
 .brand{
     right:0;
-    top:48px;
+    top:60px;
     position: absolute;
 }
 
@@ -248,7 +248,7 @@ body{
 .location{
     position:absolute;
     left:0;
-    top:55%;
+    top:65%;
 
     display:block;
     width:auto;
@@ -264,7 +264,7 @@ body{
 .support{
     position:absolute;
     right:0;
-    top:55%;
+    top:65%;
 
     display:block;
     width:auto;
@@ -378,7 +378,7 @@ body{
         object-fit:initial;
 
         position:absolute;
-        left:30%;
+        left:40%;
         top:0;
         transform:translateX(-50%);
 }
@@ -409,7 +409,7 @@ body{
 
     .present-block{
         left:0;
-        top:3%;
+        top:10%;
         transform:none;
         align-items:flex-start;
     }
