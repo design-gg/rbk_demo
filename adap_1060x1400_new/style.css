@@ -239,7 +239,7 @@ body{
 .outline-path{
     fill:none;
     stroke:#000;
-    stroke-width:clamp(1.3px, calc(1px + (100vw - 330px) * 0.000548), 1.6px);
+    stroke-width:2.6;
     vector-effect:non-scaling-stroke;
 }
 
