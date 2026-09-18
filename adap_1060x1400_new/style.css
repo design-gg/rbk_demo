@@ -239,7 +239,7 @@ body{
 .outline-path{
     fill:none;
     stroke:#000;
-    stroke-width:clamp(1px, calc(1px + (100vw - 330px) * 0.000548), 1.6px);
+    stroke-width:clamp(1.3px, calc(1px + (100vw - 330px) * 0.000548), 1.6px);
     vector-effect:non-scaling-stroke;
 }
 
@@ -251,7 +251,7 @@ body{
 .location{
     position:absolute;
     left:0;
-    top:83%;
+    top:85%;
 
     display:block;
     width:auto;
@@ -267,7 +267,7 @@ body{
 .support{
     position:absolute;
     right:0;
-    top:80%;
+    top:85%;
 
     display:block;
     width:auto;
@@ -433,7 +433,7 @@ body{
 
     .location{
         left:0;
-        top:65%;
+        top:60%;
         transform:none;
     }
 
