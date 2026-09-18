@@ -252,7 +252,7 @@ body{
 .location{
     position:absolute;
     left:0;
-    top:80%;
+    top:85%;
 
     display:block;
     width:auto;
@@ -268,7 +268,7 @@ body{
 .support{
     position:absolute;
     right:0;
-    top:80%;
+    top:85%;
 
     display:block;
     width:auto;
@@ -434,7 +434,7 @@ body{
 
     .location{
         left:0;
-        top:58%;
+        top:65%;
         transform:none;
     }
 
