@@ -349,30 +349,20 @@ function setSize(w, h) {
     currentW = w;
     currentH = h;
 
-    currentSize.textContent =
-        w + " × " + h;
+    currentSize.textContent = w + " × " + h;
 
-    /*
-        iframe получает настоящий
-        размер рекламного слота
-    */
+    /* сначала задаём реальный размер рекламного слота */
 
-    frame.style.width =
-        w + "px";
-
-    frame.style.height =
-        h + "px";
+    frame.style.width = w + "px";
+    frame.style.height = h + "px";
 
 
-    /*
-        Активная кнопка
-    */
+    /* активная кнопка */
 
     buttons.forEach(btn => {
 
         btn.classList.toggle(
             "active",
-
             Number(btn.dataset.w) === w &&
             Number(btn.dataset.h) === h
         );
@@ -380,33 +370,27 @@ function setSize(w, h) {
     });
 
 
-    /*
-        После изменения размера
-        пересчитываем отображение
-    */
+    /* сначала пересчитываем размер превью */
 
     requestAnimationFrame(function() {
 
         fitPreview();
 
+
         /*
-            Сообщаем баннеру,
-            что размер iframe изменился
+            Загружаем баннер ЗАНОВО.
+            Новый параметр ?v=... не позволяет использовать
+            старую страницу iframe.
         */
 
-        try {
+        const baseSrc = "adap_1060x1400_new/index.html";
 
-            bannerFrame.contentWindow.dispatchEvent(
-                new Event("resize")
-            );
-
-        } catch (e) {}
+        bannerFrame.src =
+            baseSrc + "?v=" + Date.now();
 
     });
 
 }
-
-
 /* =========================
    FIT PREVIEW
 ========================= */
