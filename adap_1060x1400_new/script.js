@@ -57,7 +57,7 @@ function updateScale(){
 
     if(w <= 425){
         gazpromScale = scaleX * 2; /* Газпром + представляет */
-        infoScale = scaleX * 1.8;    /* локация + поддержка */
+        infoScale = scaleX * 1.6;    /* локация + поддержка */
         legalScale = scaleX * 1.4;    /* legal + age */        
     }
 
