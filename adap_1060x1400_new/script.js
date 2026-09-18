@@ -11,10 +11,10 @@ var h = exhibition.offsetHeight;
 
 svg.setAttribute("viewBox", "0 0 " + w + " " + h);
 
-outline.setAttribute("x", 0.5);
-outline.setAttribute("y", 0.5);
-outline.setAttribute("width", w - 1);
-outline.setAttribute("height", h - 1);
+outline.setAttribute("x", 0.8);
+outline.setAttribute("y", 0.8);
+outline.setAttribute("width", w - 1.6);
+outline.setAttribute("height", h - 1.6);
 outline.setAttribute("rx", h / 2);
 outline.setAttribute("ry", h / 2);
 
