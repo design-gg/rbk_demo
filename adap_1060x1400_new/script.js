@@ -29,45 +29,62 @@ gsap.set(outline, {
 // МАСШТАБИРУЕМ >950
 // =========================================================
 
-var scalable = document.querySelectorAll(".gazprom, .presents, .logo, .exhibition, .exhibition-text, .location, .support, .legal, .age");
+var scalable = document.querySelectorAll(
+    ".gazprom, .presents, .location, .support, .legal, .age"
+);
+
+var banner = document.querySelector("#banner");
+var brandArt = document.querySelector(".brand-art");
+
 scalable.forEach(function(el){
     el.dataset.baseWidth = el.offsetWidth;
-    el.dataset.baseHeight = el.offsetHeight;
 });
+
 
 function updateScale(){
 
-    var banner = document.querySelector("#banner");
-    var content = document.querySelector(".content-scale");
-    var logo = document.querySelector(".logo");
-
     var w = banner.clientWidth;
-    var scale;
+    var h = banner.clientHeight;
+
+    /* основные коэффициенты */
+    var scaleX = Math.min(w / 1060, 1);
+    var scaleY = Math.min(h / 1400, 1);
+
+    /* отдельные коэффициенты групп */
+    var gazpromScale = scaleX;
+    var infoScale = scaleX;
+    var legalScale = scaleX;
 
     if(w <= 425){
-
-        /* На мобильном логотип занимает всю ширину content-scale */
-
-        var availableWidth = content.clientWidth;
-        scale = availableWidth / logo.dataset.baseWidth;
-
-    }else{
-
-        /* Обычная горизонтальная версия */
-
-        scale = w < 950 ? w / 950 : 1;
-
+        gazpromScale = scaleX * 2; /* Газпром + представляет */
+        infoScale = scaleX * 1.8;    /* локация + поддержка */
+        legalScale = scaleX * 1.4;    /* legal + age */        
     }
+
+    banner.style.setProperty("--sx", scaleX);
+    banner.style.setProperty("--sy", scaleY);
 
     scalable.forEach(function(el){
 
-        el.style.width = (el.dataset.baseWidth * scale) + "px";
+        var scale = scaleX;
 
-        if(el.classList.contains("exhibition")){
-            el.style.height = (el.dataset.baseHeight * scale) + "px";
+        if(el.classList.contains("gazprom") || el.classList.contains("presents")){
+            scale = gazpromScale;
         }
 
+        if(el.classList.contains("location") || el.classList.contains("support")){
+            scale = infoScale;
+        }
+    
+        if(el.classList.contains("legal") || el.classList.contains("age")){
+            scale = legalScale;
+        }        
+
+        el.style.width = (el.dataset.baseWidth * scale) + "px";
     });
+
+    /* Энергия недр + кнопка */
+    brandArt.style.transform = "scale(" + scaleX + ")";
 }
 
 updateScale();
